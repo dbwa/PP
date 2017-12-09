@@ -1,5 +1,6 @@
-import shelve
-#import h5py
+#import shelve
+import h5py  #(permet d'avoir user block, de la compression, et des chuncks) 
+import numpy as np
 import os
 from os import listdir
 from os.path import isfile, join
@@ -44,7 +45,7 @@ class arch_handler():
 		max_iter=nbr_de_dict_existant()
 		if stat=="c" and max_iter!=-1:  #si mode creation + fichier deja existants
 			raise Warning("des archives existent deja dans", __DICTIONARY_DIRECTORY_PATH__+'/_'+str(bit_value))
-		db= shelve.open(self.__DICTIONARY_DIRECTORY_PATH__+'/_'+str(bit_value)+'/_'+str(bit_value)+"_"+str(iter)+__extension_fich_dict__, 'c')
+		db= h5py.file(self.__DICTIONARY_DIRECTORY_PATH__+'/_'+str(bit_value)+'/_'+str(bit_value)+"_"+str(iter)+__extension_fich_dict__, 'a')
 		db['init'] = h0  #inserer les val en hexadecimal?
 		bd.close()  #sync et ferme le dico
 		return(max_iter)
@@ -53,10 +54,6 @@ class arch_handler():
 	"""le but de ce truc est de creer les dicos contenant les chuncks, seulement la creation initiale, le reste sera fait au fur et a mesure"""
 		for bit_value in range(2^self.__byte_number_for_inital_division__):
 			__creat_dict__(bit_value, stat="c")
-
-	def get_dict_from_disk(self):
-		"""recup le dico voulu sur le disque pour le mttre en memoire"""
-		shleve.open(filename, flag='c')
 		
 	def insert_value(self, value_to_write):
 	"""pour inserer une nouvelle valeur dans les dict (apres verification de non-existance)"""
@@ -74,7 +71,7 @@ class arch_handler():
 			writable=self.__DICTIONARY_DIRECTORY_PATH__+'/_'+str(bit_value)+'/_'+str(bit_value)+"_"+str(new_val_of_dict)+__extension_fich_dict__
 		
 		#maintenant qu'on est sur d avoir de la place dispo
-		db = shelve.open(writable)
+		db = h5py.file(writable, 'r')
 		creationdunenouvelleClé  ####
 		clef = ??
 		db[clef] = value_to_write
@@ -90,7 +87,7 @@ class arch_handler():
 		"""permet de reccuperer une valeur grace a une adresse"""
 		#recreation du chemin
 		PATH=self.__DICTIONARY_DIRECTORY_PATH__+'/_'+str(bit_value)+'/_'+str(bit_value)+"_"+str(iter_of_file)+__extension_fich_dict__
-		db = shelve.open(PATH)
+		db = h5py.file(PATH, 'r')
 		#get from shelve bizarre
 		valeur=db[clef]
 		db.close()
